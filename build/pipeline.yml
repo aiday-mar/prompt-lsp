@@ -1,0 +1,37 @@
+trigger: none
+pr: none
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: microsoft/vscode-prompt-lsp
+      ref: main
+      endpoint: Monaco
+
+parameters:
+  - name: publishExtension
+    displayName: 🚀 Publish Extension
+    type: boolean
+    default: false
+
+extends:
+  template: azure-pipelines/extension/stable.yml@templates
+  parameters:
+    workingDirectory: prompt-lsp
+    l10nSourcePaths: ./src
+    buildSteps:
+      - script: npm i
+        displayName: Install Dependencies
+        workingDirectory: prompt-lsp
+
+      - script: npm run bundle
+        displayName: Bundle for Production
+        workingDirectory: prompt-lsp
+
+    tsa:
+      config:
+        areaPath: "Visual Studio Code Miscellaneous Extensions"
+      enabled: true
+
+    publishExtension: ${{ parameters.publishExtension }}

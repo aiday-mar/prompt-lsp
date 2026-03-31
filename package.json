@@ -1,7 +1,7 @@
 {
-  "name": "prompt-lsp",
+  "name": "vscode-prompt-lsp",
   "version": "1.0.0",
-  "publisher": "prompt-lsp",
+  "publisher": "vscode-prompt-lsp",
   "displayName": "Prompt LSP",
   "description": "Language Server Protocol implementation for analyzing, validating, and improving AI prompts",
   "main": "./client/out/extension.js",
