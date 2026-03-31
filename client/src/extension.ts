@@ -112,10 +112,6 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('promptLSP.noop', () => undefined)
-  );
-
-  context.subscriptions.push(
     vscode.commands.registerCommand('promptLSP.showTokenCount', async () => {
       const editor = vscode.window.activeTextEditor;
       if (editor) {

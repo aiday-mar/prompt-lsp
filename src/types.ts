@@ -1,32 +1,5 @@
 import { Range } from 'vscode-languageserver';
 
-export type PromptFileType = 'prompt' | 'agent' | 'instructions' | 'skill' | 'unknown';
-
-export interface PromptDocument {
-  text: string;
-  lines: string[];
-  sections: Section[];
-  compositionLinks: CompositionLink[];
-  fileType: PromptFileType;
-}
-
-export interface CompositionLink {
-  target: string;
-  resolvedPath?: string;
-  line: number;
-  column: number;
-  endColumn: number;
-  /** Column range for the link target inside parentheses: (target) */
-  targetStartColumn?: number;
-  targetEndColumn?: number;
-}
-
-export interface Section {
-  name: string;
-  startLine: number;
-  endLine: number;
-}
-
 export interface AnalysisResult {
   code: string;
   message: string;
@@ -34,35 +7,6 @@ export interface AnalysisResult {
   range: Range;
   analyzer: string;
   suggestion?: string;
-}
-
-export interface TokenInfo {
-  totalTokens: number;
-  sections: Map<string, number>;
-  /** Token counts aligned with doc.sections order (avoids collisions on duplicate section names). */
-  sectionTokens?: number[];
-}
-
-export interface LLMAnalysisRequest {
-  text: string;
-  analysisType: 
-    | 'contradiction'
-    | 'ambiguity'
-    | 'persona'
-    | 'safety'
-    | 'coverage';
-}
-
-export interface LLMAnalysisResponse {
-  issues: AnalysisResult[];
-  confidence: number;
-}
-
-export interface CacheEntry {
-  hash: string;
-  results: AnalysisResult[];
-  timestamp: number;
-  ttl: number;
 }
 
 // LSP proxy types for vscode.lm integration
@@ -126,16 +70,6 @@ export interface LLMCoverageResponse {
     missing_error_handling?: { scenario: string; suggestion: string }[];
     overall_coverage?: 'comprehensive' | 'adequate' | 'limited' | 'minimal';
   };
-}
-
-export interface LLMCompositionConflictResponse {
-  conflicts?: {
-    summary: string;
-    instruction1: string;
-    instruction2: string;
-    severity: 'error' | 'warning';
-    suggestion: string;
-  }[];
 }
 
 /** Combined LLM response for single-call analysis. */
