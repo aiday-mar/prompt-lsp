@@ -106,35 +106,8 @@ export function activate(context: vscode.ExtensionContext) {
       if (editor) {
         // Send notification to server to trigger full analysis
         client.sendNotification('promptLSP/analyze', { uri: editor.document.uri.toString() });
-        vscode.window.showInformationMessage('Running prompt analysis (including LLM)...');
+        vscode.window.showInformationMessage('Running prompt analysis...');
       }
-    })
-  );
-
-  // Create status bar item for analyze prompt", "oldString": "  context.subscriptions.push(\n    vscode.commands.registerCommand('promptLSP.showTokenCount', async () => {\n      const editor = vscode.window.activeTextEditor;\n      if (editor) {\n        try {\n          const count = await client.sendRequest<number>('promptLSP/tokenCount', {\n            uri: editor.document.uri.toString(),\n          });\n          vscode.window.showInformationMessage(\n            `Token count: ${count} (${editor.document.getText().length} characters)`\n          );\n        } catch {\n          const text = editor.document.getText();\n          const estimatedTokens = Math.ceil(text.length / 4);\n          vscode.window.showInformationMessage(\n            `Estimated tokens: ~${estimatedTokens} (${text.length} characters)`\n          );\n        }\n      }\n    })\n  );\n\n  // Create status bar item for analyze prompt
-  const analyzeStatusBar = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    101
-  );
-  analyzeStatusBar.command = 'promptLSP.analyzePrompt';
-  analyzeStatusBar.text = '$(beaker) Analyze Prompt';
-  analyzeStatusBar.tooltip = 'Run full prompt analysis (including LLM)';
-  context.subscriptions.push(analyzeStatusBar);
-
-  const updateVisibility = () => {
-    const editor = vscode.window.activeTextEditor;
-    const isPrompt = editor ? isPromptDocument(editor.document) : false;
-    vscode.commands.executeCommand('setContext', 'promptLSP.isPromptFile', isPrompt);
-    if (isPrompt) {
-      analyzeStatusBar.show();
-    } else {
-      analyzeStatusBar.hide();
-    }
-  };
-
-  context.subscriptions.push(
-    vscode.window.onDidChangeActiveTextEditor(() => {
-      updateVisibility();
     })
   );
 
@@ -156,9 +129,6 @@ export function activate(context: vscode.ExtensionContext) {
     outputChannel.appendLine(`[Activation] Language server failed to start: ${err.message}`);
     outputChannel.show(true);
   });
-
-  // Initial update
-  updateVisibility();
 
   console.log('Prompt LSP extension activated');
 }
@@ -249,25 +219,6 @@ async function handleLLMProxyRequest(request: LLMProxyRequest): Promise<LLMProxy
     clearTimeout(timeout);
     cts.dispose();
   }
-}
-
-function isPromptDocument(document: vscode.TextDocument): boolean {
-  const fileName = document.fileName.toLowerCase();
-  const baseName = fileName.split(/[\/]/).pop() || '';
-  return (
-    document.languageId === 'prompt' ||
-    fileName.endsWith('.prompt.md') ||
-    fileName.endsWith('.agent.md') ||
-    fileName.endsWith('.prompt') ||
-    fileName.endsWith('.instructions.md') ||
-    isSkillMarkdown(fileName)
-  );
-}
-
-function isSkillMarkdown(fileName: string): boolean {
-  if (!fileName.endsWith('.md')) return false;
-  return /(^|[\/])\.?(github|claude)[\/]skills[\/]/.test(fileName) ||
-         /(^|[\/])skills[\/]/.test(fileName);
 }
 
 export function deactivate(): Thenable<void> | undefined {

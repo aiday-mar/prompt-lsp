@@ -48,6 +48,7 @@ export interface LLMPersonaResponse {
     description: string;
     trait1: string;
     trait2: string;
+    relevant_text: string;
     severity: 'warning' | 'info';
     suggestion: string;
   }[];
@@ -57,6 +58,7 @@ export interface LLMCognitiveLoadResponse {
   issues?: {
     type: string;
     description: string;
+    relevant_text: string;
     severity: 'warning' | 'info';
     suggestion: string;
   }[];
@@ -65,9 +67,8 @@ export interface LLMCognitiveLoadResponse {
 
 export interface LLMCoverageResponse {
   coverage_analysis?: {
-    well_handled_intents?: string[];
-    coverage_gaps?: { gap: string; impact: 'high' | 'medium' | 'low'; suggestion: string }[];
-    missing_error_handling?: { scenario: string; suggestion: string }[];
+    coverage_gaps?: { gap: string; relevant_text: string; impact: 'high' | 'medium' | 'low'; suggestion: string }[];
+    missing_error_handling?: { scenario: string; relevant_text: string; suggestion: string }[];
     overall_coverage?: 'comprehensive' | 'adequate' | 'limited' | 'minimal';
   };
 }

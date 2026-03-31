@@ -64,38 +64,54 @@ describe('LLMAnalyzer', () => {
     });
   });
 
-  describe('findLineNumber', () => {
+  describe('findTextRange', () => {
     const find = (doc: TextDocument, text: string) =>
-      (analyzer as any).findLineNumber(doc, text);
+      (analyzer as any).findTextRange(doc, text);
 
-    it('should find exact line match', () => {
+    it('should find exact match with column offsets', () => {
       const doc = makeDoc('first line\nsecond line\nthird line');
-      expect(find(doc, 'second line')).toBe(1);
+      const r = find(doc, 'second line');
+      expect(r.line).toBe(1);
+      expect(r.startChar).toBe(0);
+      expect(r.endChar).toBe('second line'.length);
     });
 
-    it('should find partial match', () => {
+    it('should find partial match with column offsets', () => {
       const doc = makeDoc('the quick brown fox\njumps over\nthe lazy dog');
-      expect(find(doc, 'brown fox')).toBe(0);
+      const r = find(doc, 'brown fox');
+      expect(r.line).toBe(0);
+      expect(r.startChar).toBe('the quick '.length);
+      expect(r.endChar).toBe('the quick brown fox'.length);
     });
 
-    it('should return 0 when no match found', () => {
+    it('should return line 0 full line when no match found', () => {
       const doc = makeDoc('hello world');
-      expect(find(doc, 'nonexistent text that does not appear')).toBe(0);
+      const r = find(doc, 'nonexistent text that does not appear');
+      expect(r.line).toBe(0);
+      expect(r.startChar).toBe(0);
+      expect(r.endChar).toBe('hello world'.length);
     });
 
     it('should be case-insensitive', () => {
       const doc = makeDoc('Hello World\nGoodbye');
-      expect(find(doc, 'hello world')).toBe(0);
+      const r = find(doc, 'hello world');
+      expect(r.line).toBe(0);
+      expect(r.startChar).toBe(0);
+      expect(r.endChar).toBe('hello world'.length);
     });
 
     it('should handle empty text', () => {
       const doc = makeDoc('hello');
-      expect(find(doc, '')).toBe(0);
+      const r = find(doc, '');
+      expect(r.line).toBe(0);
     });
 
-    it('should fall back to word-level partial match', () => {
+    it('should fall back to word-level partial match with column offsets', () => {
       const doc = makeDoc('line one\nline two with important word\nline three');
-      expect(find(doc, 'important word in a different sentence')).toBe(1);
+      const r = find(doc, 'important word in a different sentence');
+      expect(r.line).toBe(1);
+      expect(r.startChar).toBe('line two with '.length);
+      expect(r.endChar).toBe('line two with '.length + 'important'.length);
     });
   });
 
@@ -208,7 +224,7 @@ describe('LLMAnalyzer', () => {
       const results = await analyzer.analyze(doc);
       const ambiguity = results.filter(r => r.code === 'ambiguity-llm');
       expect(ambiguity.length).toBeGreaterThan(0);
-      // Verify findLineNumber resolved the correct line (line 0 contains "be professional")
+      // Verify findTextRange resolved the correct line (line 0 contains "be professional")
       expect(ambiguity[0].range.start.line).toBe(0);
     });
   });
