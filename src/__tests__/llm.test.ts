@@ -114,7 +114,6 @@ describe('LLMAnalyzer', () => {
           ambiguity_issues: [],
           persona_issues: [],
           cognitive_load: { issues: [], overall_complexity: 'low' },
-          output_shape: { predictions: {}, warnings: [] },
           coverage_analysis: {},
         }),
       });
@@ -170,7 +169,7 @@ describe('LLMAnalyzer', () => {
       const callPrompts: string[] = [];
       const mockProxy = vi.fn().mockImplementation(async (req: { prompt: string }) => {
         callPrompts.push(req.prompt);
-        return { text: '{"contradictions": [], "ambiguity_issues": [], "persona_issues": [], "cognitive_load": {"issues": [], "overall_complexity": "low"}, "output_shape": {"predictions": {}, "warnings": []}, "coverage_analysis": {}}' };
+        return { text: '{"contradictions": [], "ambiguity_issues": [], "persona_issues": [], "cognitive_load": {"issues": [], "overall_complexity": "low"}, "coverage_analysis": {}}' };
       });
       analyzer.setProxyFn(mockProxy);
 
@@ -195,7 +194,6 @@ describe('LLMAnalyzer', () => {
             suggestion: 'Pick one tone',
           }],
           cognitive_load: { issues: [], overall_complexity: 'low' },
-          output_shape: { predictions: {}, warnings: [] },
           coverage_analysis: {},
         }),
       });
@@ -219,7 +217,6 @@ describe('LLMAnalyzer', () => {
           }],
           persona_issues: [],
           cognitive_load: { issues: [], overall_complexity: 'low' },
-          output_shape: { predictions: {}, warnings: [] },
           coverage_analysis: {},
         }),
       });

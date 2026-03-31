@@ -425,42 +425,8 @@ connection.onHover((params: HoverParams): Hover | null => {
     }
   }
 
-  // Check for instruction strength
-  const strengthPatterns = staticAnalyzer.getStrengthPatterns();
-  for (const [strength, patterns] of Object.entries(strengthPatterns)) {
-    for (const pattern of patterns) {
-      const regex = new RegExp(`\\b${pattern}\\b`, 'gi');
-      let strengthMatch;
-      while ((strengthMatch = regex.exec(line)) !== null) {
-        const start = strengthMatch.index;
-        const end = start + strengthMatch[0].length;
-        if (position.character >= start && position.character <= end) {
-          return {
-            contents: {
-              kind: MarkupKind.Markdown,
-              value: `**Instruction Strength:** ${strength}\n\n${getStrengthDescription(strength)}`,
-            },
-          };
-        }
-      }
-    }
-  }
-
   return null;
 });
-
-function getStrengthDescription(strength: string): string {
-  switch (strength) {
-    case 'strong':
-      return 'This is a **strong** instruction. The model will prioritize following this constraint.';
-    case 'medium':
-      return 'This is a **medium** strength instruction. Consider using stronger language for critical constraints.';
-    case 'weak':
-      return 'This is a **weak** instruction. The model may not reliably follow this. Consider using stronger language like "Never", "Must", or "Always".';
-    default:
-      return '';
-  }
-}
 
 // Code actions for quick fixes
 connection.onCodeAction((params) => {
@@ -479,9 +445,6 @@ connection.onCodeAction((params) => {
       switch (diagnostic.code) {
         case 'ambiguous-quantifier':
           title = `Replace with "${suggestion}"`;
-          break;
-        case 'weak-instruction':
-          title = `Strengthen to "${suggestion}"`;
           break;
         default:
           title = `Fix: ${suggestion}`;
@@ -503,53 +466,6 @@ connection.onCodeAction((params) => {
 
     // Code-specific actions
     switch (diagnostic.code) {
-      case 'empty-variable':
-        codeActions.push({
-          title: 'Remove empty placeholder',
-          kind: CodeActionKind.QuickFix,
-          diagnostics: [diagnostic],
-          edit: {
-            documentChanges: [
-              TextDocumentEdit.create(
-                { uri: params.textDocument.uri, version: document.version },
-                [TextEdit.replace(diagnostic.range, '')]
-              ),
-            ],
-          },
-        });
-        break;
-      case 'agent-missing-description': {
-        const insertLine = diagnostic.range.start.line + 1;
-        codeActions.push({
-          title: 'Add description field',
-          kind: CodeActionKind.QuickFix,
-          diagnostics: [diagnostic],
-          edit: {
-            documentChanges: [
-              TextDocumentEdit.create(
-                { uri: params.textDocument.uri, version: document.version },
-                [TextEdit.insert({ line: insertLine, character: 0 }, 'description: \n')]
-              ),
-            ],
-          },
-        });
-        break;
-      }
-      case 'skill-missing-frontmatter':
-        codeActions.push({
-          title: 'Add skill frontmatter',
-          kind: CodeActionKind.QuickFix,
-          diagnostics: [diagnostic],
-          edit: {
-            documentChanges: [
-              TextDocumentEdit.create(
-                { uri: params.textDocument.uri, version: document.version },
-                [TextEdit.insert({ line: 0, character: 0 }, '---\nname: \ndescription: \n---\n')]
-              ),
-            ],
-          },
-        });
-        break;
     }
   }
 

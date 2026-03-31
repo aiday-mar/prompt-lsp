@@ -97,7 +97,7 @@ export class LLMAnalyzer {
 
   /**
    * Combined single-call analysis covering contradictions, ambiguity, persona,
-   * cognitive load, output shape, and semantic coverage.
+   * cognitive load, and semantic coverage.
    */
   private async analyzeCombined(doc: PromptDocument): Promise<AnalysisResult[]> {
     const prompt = `Analyze this AI prompt comprehensively. Perform ALL of the following analyses and return a single JSON object with results for each.
@@ -106,8 +106,7 @@ export class LLMAnalyzer {
 2. **Ambiguity**: Vague/underspecified instructions, ambiguous quantifiers, unresolved references, undefined terms, scope ambiguity.
 3. **Persona Consistency**: Conflicting personality traits, tone drift across sections.
 4. **Cognitive Load**: Nested conditions, priority conflicts, deep decision trees, constraint overload.
-5. **Output Shape**: Expected response length, structured output compliance, refusal probability, format issues.
-6. **Semantic Coverage**: Unhandled user intents, coverage gaps, missing error handling paths.
+5. **Semantic Coverage**: Unhandled user intents, coverage gaps, missing error handling paths.
 
 Prompt to analyze:
 <DOCUMENT_TO_ANALYZE>
@@ -133,17 +132,6 @@ Respond with a single JSON object in this exact format:
     ],
     "overall_complexity": "low"|"medium"|"high"|"very-high"
   },
-  "output_shape": {
-    "predictions": {
-      "estimated_tokens": 100,
-      "token_variance": "low"|"medium"|"high",
-      "structured_output_requested": false,
-      "structured_output_compliance": "high"|"medium"|"low",
-      "refusal_probability": "low"|"medium"|"high",
-      "format_issues": [ { "issue": "description", "suggestion": "fix" } ]
-    },
-    "warnings": [ { "message": "warning text", "severity": "warning"|"info" } ]
-  },
   "coverage_analysis": {
     "well_handled_intents": ["intent1"],
     "coverage_gaps": [ { "gap": "uncovered scenario", "impact": "high"|"medium"|"low", "suggestion": "how to address" } ],
@@ -163,7 +151,6 @@ Use empty arrays [] for any category with no issues found.`;
       this.processAmbiguity(doc, parsed, results);
       this.processPersona(parsed, results);
       this.processCognitiveLoad(parsed, results);
-      this.processOutputShape(parsed, results);
       this.processCoverage(parsed, results);
     } catch {
       // JSON parse error, skip
@@ -264,80 +251,6 @@ Use empty arrays [] for any category with no issues found.`;
         },
         analyzer: 'cognitive-load',
         suggestion: issue.suggestion,
-      });
-    }
-  }
-
-  private processOutputShape(parsed: LLMCombinedAnalysisResponse, results: AnalysisResult[]): void {
-    const shape = parsed.output_shape;
-    if (!shape) return;
-
-    const predictions = shape.predictions;
-    if (predictions) {
-      if (predictions.estimated_tokens > 500 && predictions.token_variance === 'high') {
-        results.push({
-          code: 'unpredictable-length',
-          message: `Output length is unpredictable (estimated ~${predictions.estimated_tokens} tokens with high variance). Consider adding explicit length constraints.`,
-          severity: 'info',
-          range: {
-            start: { line: 0, character: 0 },
-            end: { line: 0, character: 1 },
-          },
-          analyzer: 'output-prediction',
-        });
-      }
-
-      if (predictions.structured_output_requested && predictions.structured_output_compliance === 'low') {
-        results.push({
-          code: 'low-format-compliance',
-          message: 'Structured output requested but compliance likelihood is low. Add explicit examples or use function calling.',
-          severity: 'warning',
-          range: {
-            start: { line: 0, character: 0 },
-            end: { line: 0, character: 1 },
-          },
-          analyzer: 'output-prediction',
-        });
-      }
-
-      if (predictions.refusal_probability === 'high') {
-        results.push({
-          code: 'high-refusal-rate',
-          message: 'This prompt may trigger frequent refusals. Review constraints for overly restrictive or ambiguous safety rules.',
-          severity: 'warning',
-          range: {
-            start: { line: 0, character: 0 },
-            end: { line: 0, character: 1 },
-          },
-          analyzer: 'output-prediction',
-        });
-      }
-
-      for (const issue of predictions.format_issues || []) {
-        results.push({
-          code: 'format-issue',
-          message: issue.issue,
-          severity: 'info',
-          range: {
-            start: { line: 0, character: 0 },
-            end: { line: 0, character: 1 },
-          },
-          analyzer: 'output-prediction',
-          suggestion: issue.suggestion,
-        });
-      }
-    }
-
-    for (const warning of shape.warnings || []) {
-      results.push({
-        code: 'output-warning',
-        message: warning.message,
-        severity: warning.severity === 'warning' ? 'warning' : 'info',
-        range: {
-          start: { line: 0, character: 0 },
-          end: { line: 0, character: 1 },
-        },
-        analyzer: 'output-prediction',
       });
     }
   }

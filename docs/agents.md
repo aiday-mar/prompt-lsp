@@ -128,10 +128,6 @@ When Prompt LSP analyzes your agent prompt, you may see these codes:
 | `injection-surface` | Warning | User input interpolation without delimiters |
 | `injection-pattern` | Error | Known jailbreak pattern detected |
 | `ambiguous-quantifier` | Info | Vague quantity ("a few", "some") |
-| `mixed-conventions` | Hint | Using both XML and Markdown formatting |
-| `unclosed-tag` | Warning | Mismatched XML open/close tags |
-| `redundant-instruction` | Info | Same instruction appears multiple times |
-| `missing-examples` | Info | Format specified but no examples provided |
 | `contradiction` | Error/Warning | Conflicting instructions (LLM-powered) |
 | `persona-inconsistency` | Warning | Conflicting personality traits (LLM-powered) |
 | `safety-vulnerability` | Error/Warning | Exploitable safety gap (LLM-powered) |

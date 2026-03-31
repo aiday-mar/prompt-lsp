@@ -43,7 +43,6 @@ export interface AnalysisResult {
 export interface TokenInfo {
   totalTokens: number;
   sections: Map<string, number>;
-  budgetWarning?: string;
   /** Token counts aligned with doc.sections order (avoids collisions on duplicate section names). */
   sectionTokens?: number[];
 }
@@ -55,8 +54,7 @@ export interface LLMAnalysisRequest {
     | 'ambiguity'
     | 'persona'
     | 'safety'
-    | 'coverage'
-    | 'output_shape';
+    | 'coverage';
 }
 
 export interface LLMAnalysisResponse {
@@ -125,18 +123,6 @@ export interface LLMCognitiveLoadResponse {
   overall_complexity?: 'low' | 'medium' | 'high' | 'very-high';
 }
 
-export interface LLMOutputShapeResponse {
-  predictions?: {
-    estimated_tokens: number;
-    token_variance: 'low' | 'medium' | 'high';
-    structured_output_requested: boolean;
-    structured_output_compliance: 'high' | 'medium' | 'low';
-    refusal_probability: 'low' | 'medium' | 'high';
-    format_issues?: { issue: string; suggestion: string }[];
-  };
-  warnings?: { message: string; severity: 'warning' | 'info' }[];
-}
-
 export interface LLMCoverageResponse {
   coverage_analysis?: {
     well_handled_intents?: string[];
@@ -164,10 +150,6 @@ export interface LLMCombinedAnalysisResponse {
   cognitive_load?: {
     issues?: LLMCognitiveLoadResponse['issues'];
     overall_complexity?: LLMCognitiveLoadResponse['overall_complexity'];
-  };
-  output_shape?: {
-    predictions?: LLMOutputShapeResponse['predictions'];
-    warnings?: LLMOutputShapeResponse['warnings'];
   };
   coverage_analysis?: LLMCoverageResponse['coverage_analysis'];
 }
