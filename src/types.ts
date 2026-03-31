@@ -1,17 +1,13 @@
 import { Range } from 'vscode-languageserver';
 
-export type PromptFileType = 'prompt' | 'agent' | 'instructions' | 'skill' | 'system' | 'agents-md' | 'copilot-instructions' | 'unknown';
+export type PromptFileType = 'prompt' | 'agent' | 'instructions' | 'skill' | 'unknown';
 
 export interface PromptDocument {
-  uri: string;
   text: string;
   lines: string[];
-  variables: Map<string, number[]>;
   sections: Section[];
   compositionLinks: CompositionLink[];
   fileType: PromptFileType;
-  frontmatter?: Record<string, unknown>;
-  frontmatterRange?: { startLine: number; endLine: number };
 }
 
 export interface CompositionLink {

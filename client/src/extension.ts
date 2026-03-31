@@ -58,13 +58,10 @@ export function activate(context: vscode.ExtensionContext) {
       { scheme: 'file', language: 'prompt' },
       // Core prompt file types
       { scheme: 'file', pattern: '**/*.prompt.md' },
-      { scheme: 'file', pattern: '**/*.system.md' },
       { scheme: 'file', pattern: '**/*.agent.md' },
       { scheme: 'file', pattern: '**/*.prompt' },
       // Custom instructions
       { scheme: 'file', pattern: '**/*.instructions.md' },
-      { scheme: 'file', pattern: '**/.github/copilot-instructions.md' },
-      { scheme: 'file', pattern: '**/AGENTS.md' },
       // Skills (Agent Skills standard + Claude legacy)
       { scheme: 'file', language: 'markdown', pattern: '**/.github/skills/**/SKILL.md' },
       { scheme: 'file', language: 'markdown', pattern: '**/.claude/skills/**/SKILL.md' },
@@ -75,10 +72,8 @@ export function activate(context: vscode.ExtensionContext) {
     synchronize: {
       // Notify the server about file changes to prompt files
       fileEvents: [
-        vscode.workspace.createFileSystemWatcher('**/*.{prompt.md,system.md,agent.md,prompt,instructions.md}'),
+        vscode.workspace.createFileSystemWatcher('**/*.{prompt.md,agent.md,prompt,instructions.md}'),
         vscode.workspace.createFileSystemWatcher('**/skills/**/SKILL.md'),
-        vscode.workspace.createFileSystemWatcher('**/AGENTS.md'),
-        vscode.workspace.createFileSystemWatcher('**/.github/copilot-instructions.md'),
       ],
     },
     outputChannel,
@@ -142,14 +137,6 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  context.subscriptions.push(
-    vscode.commands.registerCommand('promptLSP.clearCache', () => {
-      // Send notification to server to clear cache
-      client.sendNotification('promptLSP/clearCache');
-      vscode.window.showInformationMessage('Analysis cache cleared.');
-    })
-  );
-
   // Create status bar item for analyze prompt
   const analyzeStatusBar = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
@@ -208,17 +195,9 @@ export function activate(context: vscode.ExtensionContext) {
     }
   };
 
-  // Notify server of active document changes (LLM analysis only runs on active file)
-  const notifyActiveDocument = (editor: vscode.TextEditor | undefined) => {
-    if (editor && client.isRunning()) {
-      client.sendNotification('promptLSP/activeDocumentChanged', { uri: editor.document.uri.toString() });
-    }
-  };
-
   context.subscriptions.push(
-    vscode.window.onDidChangeActiveTextEditor((editor) => {
+    vscode.window.onDidChangeActiveTextEditor(() => {
       updateTokenCount();
-      notifyActiveDocument(editor);
     })
   );
   context.subscriptions.push(
@@ -243,8 +222,6 @@ export function activate(context: vscode.ExtensionContext) {
   // Start the client
   client.start().then(() => {
     outputChannel.appendLine('[Activation] Language server started successfully');
-    // Send initial active document after client is ready
-    notifyActiveDocument(vscode.window.activeTextEditor);
   }).catch((err: Error) => {
     outputChannel.appendLine(`[Activation] Language server failed to start: ${err.message}`);
     outputChannel.show(true);
@@ -350,12 +327,9 @@ function isPromptDocument(document: vscode.TextDocument): boolean {
   return (
     document.languageId === 'prompt' ||
     fileName.endsWith('.prompt.md') ||
-    fileName.endsWith('.system.md') ||
     fileName.endsWith('.agent.md') ||
     fileName.endsWith('.prompt') ||
     fileName.endsWith('.instructions.md') ||
-    baseName === 'agents.md' ||
-    baseName === 'copilot-instructions.md' ||
     isSkillMarkdown(fileName)
   );
 }

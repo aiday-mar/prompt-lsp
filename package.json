@@ -53,7 +53,6 @@
         ],
         "extensions": [
           ".prompt.md",
-          ".system.md",
           ".agent.md",
           ".prompt"
         ],
@@ -92,19 +91,24 @@
       {
         "command": "promptLSP.analyzePrompt",
         "title": "Analyze Prompt",
-        "category": "Prompt LSP"
+        "category": "Prompt LSP",
+        "icon": "$(beaker)"
       },
       {
         "command": "promptLSP.showTokenCount",
         "title": "Show Token Count",
         "category": "Prompt LSP"
-      },
-      {
-        "command": "promptLSP.clearCache",
-        "title": "Clear Analysis Cache",
-        "category": "Prompt LSP"
       }
-    ]
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "promptLSP.analyzePrompt",
+          "group": "navigation",
+          "when": "editorLangId == prompt"
+        }
+      ]
+    }
   },
   "dependencies": {
     "tiktoken": "^1.0.22",

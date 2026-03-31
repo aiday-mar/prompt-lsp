@@ -6,51 +6,12 @@ import { PromptDocument, PromptFileType, CompositionLink } from './types';
 export function detectFileType(uri: string): PromptFileType {
   const lower = uri.toLowerCase();
   const baseName = lower.split(/[\\/]/).pop() || '';
-  if (baseName === 'agents.md') return 'agents-md';
-  if (baseName === 'copilot-instructions.md') return 'copilot-instructions';
   if (baseName === 'skill.md') return 'skill';
   if (lower.endsWith('.agent.md')) return 'agent';
   if (lower.endsWith('.prompt.md')) return 'prompt';
-  if (lower.endsWith('.system.md')) return 'system';
   if (lower.endsWith('.instructions.md')) return 'instructions';
   if (isSkillMarkdownPath(lower)) return 'skill';
   return 'unknown';
-}
-
-export function parseFrontmatter(lines: string[]): { frontmatter?: Record<string, unknown>; frontmatterRange?: { startLine: number; endLine: number } } {
-  if (lines.length === 0 || lines[0].trim() !== '---') {
-    return {};
-  }
-
-  let endLine = -1;
-  for (let i = 1; i < lines.length; i++) {
-    if (lines[i].trim() === '---') {
-      endLine = i;
-      break;
-    }
-  }
-
-  if (endLine === -1) {
-    return {};
-  }
-
-  const frontmatterText = lines.slice(1, endLine).join('\n');
-
-  try {
-    const parsed = parseYAML(frontmatterText);
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return {
-        frontmatter: parsed as Record<string, unknown>,
-        frontmatterRange: { startLine: 0, endLine },
-      };
-    }
-  } catch {
-    // Invalid YAML — return range but no parsed data
-  }
-
-  return {
-    frontmatterRange: { startLine: 0, endLine },
-  };
 }
 
 export function getDocumentDir(uri: string): string | undefined {
@@ -124,11 +85,8 @@ export function isPromptFile(target: string): boolean {
   const baseName = lower.split(/[\\/]/).pop() || '';
   return (
     lower.endsWith('.prompt.md') ||
-    lower.endsWith('.system.md') ||
     lower.endsWith('.agent.md') ||
     lower.endsWith('.instructions.md') ||
-    baseName === 'agents.md' ||
-    baseName === 'copilot-instructions.md' ||
     isSkillMarkdownPath(lower)
   );
 }
@@ -222,13 +180,10 @@ export function parsePromptDocument(options: ParsePromptDocumentOptions): Prompt
   });
 
   return {
-    uri,
     text,
     lines,
-    variables,
     sections,
     compositionLinks,
-    fileType: detectFileType(uri),
-    ...parseFrontmatter(lines),
+    fileType: detectFileType(uri)
   };
 }

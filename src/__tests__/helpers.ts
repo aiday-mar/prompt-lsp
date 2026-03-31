@@ -54,14 +54,10 @@ export function makeDoc(
   }
 
   return {
-    uri: options.uri ?? 'file:///test.prompt.md',
     text,
     lines,
-    variables,
     sections,
     compositionLinks: options.compositionLinks ?? [],
-    fileType: options.fileType ?? 'prompt',
-    frontmatter: options.frontmatter,
-    frontmatterRange: options.frontmatterRange,
+    fileType: options.fileType ?? 'prompt'
   };
 }
