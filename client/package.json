@@ -73,11 +73,6 @@
         "title": "Analyze Prompt",
         "category": "Prompt LSP",
         "icon": "$(beaker)"
-      },
-      {
-        "command": "promptLSP.showTokenCount",
-        "title": "Show Token Count",
-        "category": "Prompt LSP"
       }
     ],
     "menus": {

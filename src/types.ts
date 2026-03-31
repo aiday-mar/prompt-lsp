@@ -82,4 +82,11 @@ export interface LLMCombinedAnalysisResponse {
     overall_complexity?: LLMCognitiveLoadResponse['overall_complexity'];
   };
   coverage_analysis?: LLMCoverageResponse['coverage_analysis'];
+  composition_conflicts?: {
+    summary: string;
+    instruction1: string;
+    instruction2: string;
+    severity: 'error' | 'warning';
+    suggestion: string;
+  }[];
 }

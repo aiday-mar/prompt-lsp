@@ -13,7 +13,7 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "bundle": "npm run bundle:server && npm run bundle:client",
-    "bundle:server": "tsc -p ./ && esbuild ./out/server.js --bundle --outfile=./out/server.bundled.js --platform=node --format=cjs --external:tiktoken && mv ./out/server.bundled.js ./out/server.js && mkdir -p ./out/node_modules && cp -r ./node_modules/tiktoken ./out/node_modules/tiktoken",
+    "bundle:server": "tsc -p ./ && esbuild ./out/server.js --bundle --outfile=./out/server.bundled.js --platform=node --format=cjs && mv ./out/server.bundled.js ./out/server.js",
     "bundle:client": "cd client && tsc -p ./ && esbuild ./out/extension.js --bundle --outfile=./out/extension.bundled.js --platform=node --format=cjs --external:vscode && mv ./out/extension.bundled.js ./out/extension.js",
     "build": "npm run compile && cd client && npm run compile",
     "build:all": "npm run compile && cd client && npm install && npm run compile",
@@ -93,11 +93,6 @@
         "title": "Analyze Prompt",
         "category": "Prompt LSP",
         "icon": "$(beaker)"
-      },
-      {
-        "command": "promptLSP.showTokenCount",
-        "title": "Show Token Count",
-        "category": "Prompt LSP"
       }
     ],
     "menus": {
@@ -111,7 +106,6 @@
     }
   },
   "dependencies": {
-    "tiktoken": "^1.0.22",
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.12",

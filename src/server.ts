@@ -11,14 +11,12 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { StaticAnalyzer } from './analyzers/static';
 import { LLMAnalyzer } from './analyzers/llm';
 import { AnalysisResult, LLMProxyRequest, LLMProxyResponse } from './types';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-const staticAnalyzer = new StaticAnalyzer();
 const llmAnalyzer = new LLMAnalyzer();
 
 connection.onInitialize((_params: InitializeParams) => {
@@ -100,16 +98,6 @@ connection.onNotification('promptLSP/analyze', (params: { uri: string }) => {
   }
 });
 
-connection.onRequest('promptLSP/tokenCount', (params: { uri: string }): number => {
-  const document = documents.get(params.uri);
-  if (!document) return 0;
-  return staticAnalyzer.getTokenCount(document.getText());
-});
-
 documents.listen(connection);
-
-connection.onShutdown(() => {
-  staticAnalyzer.dispose();
-});
 
 connection.listen();

@@ -111,29 +111,7 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  context.subscriptions.push(
-    vscode.commands.registerCommand('promptLSP.showTokenCount', async () => {
-      const editor = vscode.window.activeTextEditor;
-      if (editor) {
-        try {
-          const count = await client.sendRequest<number>('promptLSP/tokenCount', {
-            uri: editor.document.uri.toString(),
-          });
-          vscode.window.showInformationMessage(
-            `Token count: ${count} (${editor.document.getText().length} characters)`
-          );
-        } catch {
-          const text = editor.document.getText();
-          const estimatedTokens = Math.ceil(text.length / 4);
-          vscode.window.showInformationMessage(
-            `Estimated tokens: ~${estimatedTokens} (${text.length} characters)`
-          );
-        }
-      }
-    })
-  );
-
-  // Create status bar item for analyze prompt
+  // Create status bar item for analyze prompt", "oldString": "  context.subscriptions.push(\n    vscode.commands.registerCommand('promptLSP.showTokenCount', async () => {\n      const editor = vscode.window.activeTextEditor;\n      if (editor) {\n        try {\n          const count = await client.sendRequest<number>('promptLSP/tokenCount', {\n            uri: editor.document.uri.toString(),\n          });\n          vscode.window.showInformationMessage(\n            `Token count: ${count} (${editor.document.getText().length} characters)`\n          );\n        } catch {\n          const text = editor.document.getText();\n          const estimatedTokens = Math.ceil(text.length / 4);\n          vscode.window.showInformationMessage(\n            `Estimated tokens: ~${estimatedTokens} (${text.length} characters)`\n          );\n        }\n      }\n    })\n  );\n\n  // Create status bar item for analyze prompt
   const analyzeStatusBar = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
     101
@@ -143,64 +121,20 @@ export function activate(context: vscode.ExtensionContext) {
   analyzeStatusBar.tooltip = 'Run full prompt analysis (including LLM)';
   context.subscriptions.push(analyzeStatusBar);
 
-  // Create status bar item for token count
-  const tokenStatusBar = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    100
-  );
-  tokenStatusBar.command = 'promptLSP.showTokenCount';
-  context.subscriptions.push(tokenStatusBar);
-
-  // Update token count on active editor change
-  let tokenUpdateTimer: ReturnType<typeof setTimeout> | undefined;
-
-  // Dispose the debounce timer on deactivation
-  context.subscriptions.push({ dispose: () => { if (tokenUpdateTimer) clearTimeout(tokenUpdateTimer); } });
-
-  const updateTokenCount = () => {
+  const updateVisibility = () => {
     const editor = vscode.window.activeTextEditor;
     const isPrompt = editor ? isPromptDocument(editor.document) : false;
     vscode.commands.executeCommand('setContext', 'promptLSP.isPromptFile', isPrompt);
-    if (editor && isPrompt) {
+    if (isPrompt) {
       analyzeStatusBar.show();
-      const text = editor.document.getText();
-      const estimatedTokens = Math.ceil(text.length / 4);
-      tokenStatusBar.text = `$(symbol-number) ~${estimatedTokens} tokens`;
-      tokenStatusBar.tooltip = 'Estimated token count (click for details)';
-      tokenStatusBar.show();
-
-      // Debounced accurate token count via LSP
-      if (tokenUpdateTimer) clearTimeout(tokenUpdateTimer);
-      const editorUri = editor.document.uri.toString();
-      tokenUpdateTimer = setTimeout(async () => {
-        try {
-          const count = await client.sendRequest<number>('promptLSP/tokenCount', {
-            uri: editorUri,
-          });
-          if (vscode.window.activeTextEditor?.document.uri.toString() === editorUri) {
-            tokenStatusBar.text = `$(symbol-number) ${count} tokens`;
-            tokenStatusBar.tooltip = 'Token count via tiktoken (click for details)';
-          }
-        } catch {
-          // Server not ready or request failed, keep estimate
-        }
-      }, 300);
     } else {
       analyzeStatusBar.hide();
-      tokenStatusBar.hide();
     }
   };
 
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(() => {
-      updateTokenCount();
-    })
-  );
-  context.subscriptions.push(
-    vscode.workspace.onDidChangeTextDocument((e) => {
-      if (vscode.window.activeTextEditor?.document === e.document) {
-        updateTokenCount();
-      }
+      updateVisibility();
     })
   );
 
@@ -224,7 +158,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   // Initial update
-  updateTokenCount();
+  updateVisibility();
 
   console.log('Prompt LSP extension activated');
 }

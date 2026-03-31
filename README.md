@@ -3,16 +3,11 @@
 [![CI](https://github.com/pierceboggan/prompt-lsp/actions/workflows/ci.yml/badge.svg)](https://github.com/pierceboggan/prompt-lsp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A Language Server Protocol implementation for analyzing, validating, and improving AI prompt files. Works with `.prompt.md`, `.agent.md`, `.instructions.md`, and skill files — providing real-time diagnostics, token counting, and LLM-powered semantic analysis directly in VS Code.
+A Language Server Protocol implementation for analyzing, validating, and improving AI prompt files. Works with `.prompt.md`, `.agent.md`, `.instructions.md`, and skill files — providing LLM-powered semantic analysis directly in VS Code.
 
 ## Features
 
-### Static Analysis (instant, every keystroke)
-
-- **Ambiguity Detection** — Catches vague quantifiers ("a few"), unresolved references ("as mentioned above"), and undefined terms
-- **Token Counting** — Accurate token counts via [tiktoken](https://github.com/openai/tiktoken), with per-section breakdowns
-
-### LLM-Powered Analysis (on save, via GitHub Copilot)
+### LLM-Powered Analysis (via GitHub Copilot)
 
 - **Contradiction Detection** — Finds logical, behavioral, and format conflicts
 - **Semantic Ambiguity** — Deeper ambiguity analysis with rewrite suggestions
@@ -23,12 +18,7 @@ A Language Server Protocol implementation for analyzing, validating, and improvi
 
 ### Editor Integration
 
-- **CodeLens** — Issue count and per-section token counts displayed inline
-- **Hover Information** — Variable details on hover
-- **Quick Fixes** — One-click fixes for ambiguous quantifiers
-- **Go to Definition** — Navigate to variable definitions and linked prompt files
-- **Document Symbols** — Outline view of prompt sections
-- **Status Bar** — Live token count and one-click "Analyze Prompt" button in the status bar
+- **Status Bar** — One-click "Analyze Prompt" button in the status bar
 
 ## Supported File Types
 
@@ -53,16 +43,15 @@ Then press `F5` in VS Code to launch the Extension Development Host.
 ## Usage
 
 1. Open any supported prompt file in VS Code
-2. **Static diagnostics** appear instantly as you type
-3. **LLM diagnostics** run automatically on save (requires GitHub Copilot)
+2. Click **Analyze Prompt** in the status bar or run the command
+3. **LLM diagnostics** require GitHub Copilot
 4. Use the **Problems panel** (`Ctrl+Shift+M`) to see all issues
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `Prompt LSP: Analyze Prompt` | Force full re-analysis (including LLM) |
-| `Prompt LSP: Show Token Count` | Show accurate token count for the active file |
+| `Prompt LSP: Analyze Prompt` | Run full analysis (including LLM) |
 
 ### Configuration
 
